@@ -1,28 +1,30 @@
+import os
+import shutil
 import struct
 
 
-class ImageParser:
+class ImageParsEditor:
     def __init__(self, image_name):
         self.img_path = f'saved_images/{image_name}.bmp'
+        self.img_out_path = f'output/encrypted_{image_name}.bmp'
         self.bmp_info = self.read_bmp_header()
-        print(f"{self.bmp_info=}")
+        # print(f"{self.bmp_info=}")
         self.pixel_data_offset: int = self.bmp_info["pixel_data_offset"]
         self.bmp_width: int = self.bmp_info["width"]
         self.bmp_height: int = self.bmp_info["height"]
         self.bits_per_pixel: int = self.bmp_info["bits_per_pixel"]
         self.bytes_per_pixel: int = self.bits_per_pixel // 8
         self.is_uncompressed: bool = self.bmp_info["is_uncompressed"]
+        self.row_size = (self.bmp_width * self.bytes_per_pixel + 3) & ~3
+        # Row size (including padding to the nearest 4 bytes)
 
-        pixel_data = self.read_pixel(142, 132)
-        rgb = self.pixel_as_rgb(pixel_data)
-        print(f"{pixel_data}")
-        print(f"{rgb}")
+        self.edited_bytearray = self.copy_bytes()
 
     def read_bmp_header(self):
         with open(self.img_path, 'rb') as f:
             # Read the BMP file header (14 bytes)
             bmp_file_header = f.read(14)
-            print(f"{bmp_file_header=}")
+            # print(f"{bmp_file_header=}")
             # Unpack the BMP file header
             file_type, file_size, reserved1, reserved2, pixel_data_offset = struct.unpack('<2sI2HI', bmp_file_header)
 
@@ -31,14 +33,14 @@ class ImageParser:
 
             # Read the DIB header (the first 4 bytes tell us its size)
             dib_header_size = struct.unpack('<I', f.read(4))[0]
-            print(f"{dib_header_size=}")
+            # print(f"{dib_header_size=}")
 
             # Go back to the beginning of the DIB header
             f.seek(14)
 
             # Read the entire DIB header based on its size
             dib_header = f.read(dib_header_size)
-            print(f"{dib_header=}")
+            # print(f"{dib_header=}")
 
             # Extract information from the DIB header
             if dib_header_size == 40:
@@ -67,22 +69,30 @@ class ImageParser:
                 "is_uncompressed": is_uncompressed
             }
 
-    def read_pixel(self, row: int, col: int) -> bytes:
-        row_size = (self.bmp_width * self.bytes_per_pixel + 3) & ~3
-        # Row size (including padding to the nearest 4 bytes)
-
+    def read_pixel(self, row: int, col: int, path) -> bytes:
         # Calculate the position of the pixel in the file
         # BMP files store rows bottom-to-top
-        pixel_offset = self.pixel_data_offset + (self.bmp_height - 1 - row) * row_size + col * self.bytes_per_pixel
-
-        with open(self.img_path, 'rb') as f:
-            f.seek(pixel_offset)
-            pixel_data = f.read(self.bytes_per_pixel)
-
-        return pixel_data
+        pixel_offset = self.pixel_data_offset + (self.bmp_height - 1 - row) * self.row_size + col * self.bytes_per_pixel
+        try:
+            with open(path, 'rb') as f:
+                f.seek(pixel_offset)
+                pixel_data = f.read(self.bytes_per_pixel)
+                return pixel_data
+        except (FileExistsError, IndexError) as e:
+            print(f"Error reading pixel ({row}, {col}) in {path}")
+            print(e)
 
     def set_pixel(self, pixel_data: bytes, row: int, col: int):
-        pass
+        # Calculate the position of the pixel in the file
+        # BMP files store rows bottom-to-top
+        byte_index = self.pixel_data_offset + (self.bmp_height - 1 - row) * self.row_size + col * self.bytes_per_pixel
+        assert len(pixel_data) == self.bytes_per_pixel
+
+        # make sure the replacement doesn't exceed the file length
+        assert byte_index + len(pixel_data) <= len(self.edited_bytearray)
+
+        # Replace the bytes
+        self.edited_bytearray[byte_index:byte_index + len(pixel_data)] = pixel_data
 
     def pixel_as_rgb(self, pixel_data):
         if self.bytes_per_pixel == 3:
@@ -95,3 +105,19 @@ class ImageParser:
             return (r, g, b, a)
         else:
             raise ValueError("Unsupported bits per pixel")
+
+    def copy_bytes(self) -> bytearray:
+        with open(self.img_path, 'rb') as f:
+            return bytearray(f.read())
+
+    def save_edited_image(self):
+        # copy the file to output
+        shutil.copy2(self.img_path, self.img_out_path)
+
+        with open(self.img_out_path, 'rb+') as f:
+            # Move to the beginning of the file and write the modified data
+            f.seek(0)
+            f.write(self.edited_bytearray)
+            # f.truncate()  # Adjust the file size if needed
+
+
