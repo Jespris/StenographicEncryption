@@ -4,9 +4,8 @@ import struct
 
 
 class ImageParsEditor:
-    def __init__(self, image_name):
-        self.img_path = f'saved_images/{image_name}.bmp'
-        self.img_out_path = f'output/encrypted_{image_name}.bmp'
+    def __init__(self, image_path):
+        self.img_path = image_path
         self.bmp_info = self.read_bmp_header()
         # print(f"{self.bmp_info=}")
         self.pixel_data_offset: int = self.bmp_info["pixel_data_offset"]
@@ -69,17 +68,20 @@ class ImageParsEditor:
                 "is_uncompressed": is_uncompressed
             }
 
-    def read_pixel(self, row: int, col: int, path) -> bytes:
+    def get_total_pixel_bytes(self):
+        return self.bmp_height * self.row_size + self.bmp_width * self.bytes_per_pixel - self.pixel_data_offset
+
+    def read_pixel(self, row: int, col: int) -> bytes:
         # Calculate the position of the pixel in the file
         # BMP files store rows bottom-to-top
         pixel_offset = self.pixel_data_offset + (self.bmp_height - 1 - row) * self.row_size + col * self.bytes_per_pixel
         try:
-            with open(path, 'rb') as f:
+            with open(self.img_path, 'rb') as f:
                 f.seek(pixel_offset)
                 pixel_data = f.read(self.bytes_per_pixel)
                 return pixel_data
         except (FileExistsError, IndexError) as e:
-            print(f"Error reading pixel ({row}, {col}) in {path}")
+            print(f"Error reading pixel ({row}, {col}) in {self.img_path}")
             print(e)
 
     def set_pixel(self, pixel_data: bytes, row: int, col: int):
@@ -110,11 +112,11 @@ class ImageParsEditor:
         with open(self.img_path, 'rb') as f:
             return bytearray(f.read())
 
-    def save_edited_image(self):
+    def save_edited_image(self, output_path):
         # copy the file to output
-        shutil.copy2(self.img_path, self.img_out_path)
+        shutil.copy2(self.img_path, output_path)
 
-        with open(self.img_out_path, 'rb+') as f:
+        with open(output_path, 'rb+') as f:
             # Move to the beginning of the file and write the modified data
             f.seek(0)
             f.write(self.edited_bytearray)

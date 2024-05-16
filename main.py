@@ -1,12 +1,12 @@
 import os
 import pprint
-from bmp_file_parser import ImageParsEditor
+from encrypter import Encrypter
 from testing import test_suite
 
 
 def main():
     print("Hello")
-    bmp_parser = ImageParsEditor('sample')
+    encrypter = Encrypter('saved_images/sample.bmp', "Hello World!")
 
 
 if __name__ == "__main__":
