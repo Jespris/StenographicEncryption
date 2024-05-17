@@ -1,12 +1,14 @@
 import os
 import pprint
 from encrypter import Encrypter
+from decrypter import Decrypter
 from testing import test_suite
 
 
 def main():
     print("Hello")
-    encrypter = Encrypter('saved_images/sample.bmp', "Hello World!")
+    encrypter = Encrypter('saved_images/sample.bmp', "Hi my name is Jesper Andersson and I'm the author of this code", 1)
+    decrypter = Decrypter('saved_images/sample.bmp', 'output/encrypted_image.bmp', 1)
 
 
 if __name__ == "__main__":

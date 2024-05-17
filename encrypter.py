@@ -4,7 +4,8 @@ from bmp_file_parser import ImageParsEditor
 
 
 class Encrypter:
-    def __init__(self, image_path: str, data: str):
+    def __init__(self, image_path: str, data: str, key):
+        self.key = key
         self.data_to_encrypt: str = data
         self.image_path = image_path
         self.image_editor = ImageParsEditor(image_path)
