@@ -10,8 +10,9 @@ class Decrypter:
         self.reference_img_parser = ImageParsEditor(self.reference_img_path)
         self.encrypted_img_parser = ImageParsEditor(self.encrypted_img_path)
         assert self.identical_headers()
+        print("Decrypting data...")
         self.decrypt()
-        print(f"Decryption complete! {self.decrypted_data=}")
+        print(f"Decryption complete! Decrypted data: {self.decrypted_data}")
 
     def decrypt(self):
         list_of_hexes = []
@@ -20,16 +21,18 @@ class Decrypter:
         cols = self.reference_img_parser.bmp_width
         rows = self.reference_img_parser.bmp_height
 
+        datapieces = 0
         for row in range(rows):
             for col in range(cols):
                 # TODO: This is a very slow method, optimize using the key
                 reference_data = self.reference_img_parser.read_pixel(row, col)
                 encrypted_data = self.encrypted_img_parser.read_pixel(row, col)
                 if reference_data != encrypted_data:
+                    datapieces += 1
                     list_of_hexes.append(self.sub_bytes(encrypted_data, reference_data))
-                    print("We found encrypted data")
+                    print(f"We found encrypted data (nr {datapieces})")
 
-        print(f"{list_of_hexes=}")
+        # print(f"{list_of_hexes=}")
         self.decrypted_data = self.hex_list_to_string(list_of_hexes)
 
     @staticmethod

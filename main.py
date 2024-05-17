@@ -8,6 +8,7 @@ from testing import test_suite
 def main():
     print("Hello")
     encrypter = Encrypter('saved_images/sample.bmp', "Hi my name is Jesper Andersson and I'm the author of this code", 1)
+    encrypter.save_encryption('output/encrypted_image.bmp')
     decrypter = Decrypter('saved_images/sample.bmp', 'output/encrypted_image.bmp', 1)
 
 

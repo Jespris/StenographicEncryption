@@ -11,9 +11,14 @@ class Encrypter:
         self.image_editor = ImageParsEditor(image_path)
         self.data_as_chars: [chr] = list(self.data_to_encrypt)
         self.data_as_bytes = self.convert_to_hex(data)
-        print(self.data_as_bytes)
+        # print(self.data_as_bytes)
+        print(f"Encrypting data: '{data}' into image")
         self.obfuscate_data()
-        self.image_editor.save_edited_image('output/encrypted_image.bmp')
+        print("Encryption complete!")
+        # self.image_editor.save_edited_image('output/encrypted_image.bmp')
+
+    def save_encryption(self, output_file_path):
+        self.image_editor.save_edited_image(output_file_path)
 
     @staticmethod
     def convert_to_hex(data):
@@ -35,11 +40,11 @@ class Encrypter:
         row = 0
         col = 0
         for hex_string in self.data_as_bytes:
-            print(f"Byte {hex_string}")
+            # print(f"Byte {hex_string}")
             pixel_bytes = self.image_editor.read_pixel(row, col)
-            print(f"Got bytes {pixel_bytes} at ({row}, {col})")
+            # print(f"Got bytes {pixel_bytes} at ({row}, {col})")
             edited_bytes = self.add_bytes(pixel_bytes, hex_string)
-            print(f"Setting bytes {edited_bytes} at ({row}, {col})")
+            # print(f"Setting bytes {edited_bytes} at ({row}, {col})")
             self.image_editor.set_pixel(edited_bytes, row, col)
             col += pixels_space_size
             while col >= self.image_editor.bmp_width:
@@ -56,7 +61,7 @@ class Encrypter:
         # Convert back to bytes if needed
         new_bytes = bytes(mutable_bytes)
         # Print the combined bytes
-        print(f"{new_bytes=}")
+        # print(f"{new_bytes=}")
         return new_bytes
 
 

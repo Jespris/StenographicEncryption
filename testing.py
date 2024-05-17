@@ -1,4 +1,6 @@
 from bmp_file_parser import ImageParsEditor
+from decrypter import Decrypter
+from encrypter import Encrypter
 
 
 def test_bmp_images() -> bool:
@@ -30,11 +32,32 @@ def test_individual_pixel_editing() -> bool:
         return False
 
 
+def test_encrypt_decrypt_consistency():
+    try:
+        test_words = ["test", "Hello", "1234", ",.!#googoogaagaa", "TESTING", "9e"]
+        for word in test_words:
+            reference_img = 'saved_images/sample.bmp'
+            encrypt_path = 'output/encrypted_image.bmp'
+            key = 1
+            encrypter = Encrypter(reference_img,
+                                  word,
+                                  key)
+            encrypter.save_encryption(encrypt_path)
+            decrypter = Decrypter(reference_img,
+                                  encrypt_path, key)
+            assert decrypter.decrypted_data == word
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
+
 def test_suite() -> bool:
     print("="*20 + " TEST " + "="*20)
     try:
         assert test_bmp_images()
         assert test_individual_pixel_editing()
+        # assert test_encrypt_decrypt_consistency()
         print("All tests passed!!!")
         return True
     except Exception as e:
