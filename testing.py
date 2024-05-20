@@ -4,7 +4,16 @@ from encrypter import Encrypter
 
 
 def test_bmp_images() -> bool:
-    return True
+    test_images = ['blue', 'sample', 'sample2', 'sample3']
+    try:
+        for test_image in test_images:
+            bmp_parser = ImageParsEditor(f"saved_images/{test_image}.bmp")
+            assert bmp_parser.is_uncompressed is True
+        return True
+    except Exception as e:
+        print("Sample images failed")
+        print(e)
+        return False
 
 
 def test_individual_pixel_editing() -> bool:
