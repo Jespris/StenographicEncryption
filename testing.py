@@ -1,7 +1,9 @@
+import random
+
 from bmp_file_parser import ImageParsEditor
 from decrypter import Decrypter
 from encrypter import Encrypter
-
+from key_generator import KeyUtils
 
 def test_bmp_images() -> bool:
     test_images = ['blue', 'sample', 'sample2', 'sample3']
@@ -52,11 +54,28 @@ def test_encrypt_decrypt_consistency():
                                   word,
                                   key)
             encrypter.save_encryption(encrypt_path)
-            decrypter = Decrypter(reference_img,
-                                  encrypt_path, key)
+            decrypter = Decrypter(encrypt_path, key)
             assert decrypter.decrypted_data == word
         return True
     except Exception as e:
+        print(e)
+        return False
+
+
+def test_key_generator():
+    try:
+        generated_keys = []
+        for i in range(100):  # test 100 keys
+            a = random.randint(0, 100)
+            b = random.randint(100, 200)
+            key = KeyUtils(a, b, i).generate_unique_key()
+            if key not in generated_keys:
+                generated_keys.append(key)
+            else:
+                return False
+        return True
+    except Exception as e:
+        print("Key generator failed!")
         print(e)
         return False
 
@@ -67,6 +86,7 @@ def test_suite() -> bool:
         assert test_bmp_images()
         assert test_individual_pixel_editing()
         # assert test_encrypt_decrypt_consistency()
+        assert test_key_generator()
         print("All tests passed!!!")
         return True
     except Exception as e:

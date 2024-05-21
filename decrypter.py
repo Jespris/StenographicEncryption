@@ -2,12 +2,12 @@ from bmp_file_parser import ImageParsEditor
 
 
 class Decrypter:
-    def __init__(self, reference_image_path, encrypted_image_path, key):
-        self.reference_img_path = reference_image_path
+    def __init__(self, encrypted_image_path, key):
+        # self.reference_img_path = reference_image_path
         self.encrypted_img_path = encrypted_image_path
         self.key = key
         self.decrypted_data = ""
-        self.reference_img_parser = ImageParsEditor(self.reference_img_path)
+        # self.reference_img_parser = ImageParsEditor(self.reference_img_path)
         self.encrypted_img_parser = ImageParsEditor(self.encrypted_img_path)
         assert self.identical_headers()
         print("Decrypting data...")
@@ -16,21 +16,17 @@ class Decrypter:
 
     def decrypt(self):
         list_of_hexes = []
-        pixel_data_start = self.reference_img_parser.pixel_data_offset
+        pixel_data_start = self.encrypted_img_parser.pixel_data_offset
         assert pixel_data_start == self.encrypted_img_parser.pixel_data_offset
-        cols = self.reference_img_parser.bmp_width
-        rows = self.reference_img_parser.bmp_height
+        cols = self.encrypted_img_parser.bmp_width
+        rows = self.encrypted_img_parser.bmp_height
 
         datapieces = 0
         for row in range(rows):
             for col in range(cols):
                 # TODO: This is a very slow method, optimize using the key
-                reference_data = self.reference_img_parser.read_pixel(row, col)
+                # reference_data = self.reference_img_parser.read_pixel(row, col)
                 encrypted_data = self.encrypted_img_parser.read_pixel(row, col)
-                if reference_data != encrypted_data:
-                    datapieces += 1
-                    list_of_hexes.append(self.sub_bytes(encrypted_data, reference_data))
-                    print(f"We found encrypted data (nr {datapieces})")
 
         # print(f"{list_of_hexes=}")
         self.decrypted_data = self.hex_list_to_string(list_of_hexes)
