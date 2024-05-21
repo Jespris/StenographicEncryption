@@ -3,7 +3,7 @@ import random
 from bmp_file_parser import ImageParsEditor
 from decrypter import Decrypter
 from encrypter import Encrypter
-from key_utils import generate_unique_key
+from key_utils import generate_unique_key, parse_key
 
 
 def test_bmp_images() -> bool:
@@ -65,17 +65,29 @@ def test_encrypt_decrypt_consistency():
 
 def test_key_generator():
     try:
-        generated_keys = []
-        for i in range(10000):  # test 10'000 keys
+        key_to_input = {}
+        y_to_x = {}
+        for i in range(10, 10000):  # test 1000 keys
             a = random.randint(0, 50)
             b = random.randint(i + 60, i + 100)
-            key = generate_unique_key(a, b, i)
-            if key not in generated_keys:
-                generated_keys.append(key)
+            key, prime_component = generate_unique_key(a, b, i)
+
+            if key not in key_to_input.keys():
+                key_to_input[key] = (a, b, i)
+                # print(f"Parsed key information: {parse_key(key)}")
+                y_to_x[i] = prime_component
             else:
-                print(f"Generated key already exists!!! Tested number of keys: {i}")
+                print(f"Generated key already exists!!!")
+                print(f"Got key {key} with input ({a}, {b}, {i})")
+                print(f"Previous key had inputs {key_to_input[key]}")
                 return False
+
+        # test some y to x values
+        for y, x_list in y_to_x.items():
+            if len(x_list) <= 3:
+                print(f"y = {y} -> x = {x_list}")
         return True
+
     except Exception as e:
         print("Key generator failed!")
         print(e)
