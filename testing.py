@@ -3,7 +3,8 @@ import random
 from bmp_file_parser import ImageParsEditor
 from decrypter import Decrypter
 from encrypter import Encrypter
-from key_generator import KeyUtils
+from key_utils import generate_unique_key
+
 
 def test_bmp_images() -> bool:
     test_images = ['blue', 'sample', 'sample2', 'sample3']
@@ -65,13 +66,14 @@ def test_encrypt_decrypt_consistency():
 def test_key_generator():
     try:
         generated_keys = []
-        for i in range(100):  # test 100 keys
-            a = random.randint(0, 100)
-            b = random.randint(100, 200)
-            key = KeyUtils(a, b, i).generate_unique_key()
+        for i in range(10000):  # test 10'000 keys
+            a = random.randint(0, 50)
+            b = random.randint(i + 60, i + 100)
+            key = generate_unique_key(a, b, i)
             if key not in generated_keys:
                 generated_keys.append(key)
             else:
+                print(f"Generated key already exists!!! Tested number of keys: {i}")
                 return False
         return True
     except Exception as e:
