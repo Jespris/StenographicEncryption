@@ -22,13 +22,15 @@ def get_primes_summing_to_x(x):
 
 def calculate_prime_sum_component(x):
     prime_list = get_primes_summing_to_x(x)
-    sum_of_squares = sum(p for p in prime_list) * len(prime_list) * 31 * x
+    sum_of_squares = sum(p for p in prime_list)
     # if len(prime_list) > 3:
+    """
     print("_________________________")
     print(f"{x=}")
     print(f"{prime_list=}")
     print(f"{sum_of_squares=}")
     print("_________________________")
+    """
     return sum_of_squares, prime_list
 
 
@@ -41,8 +43,9 @@ def generate_unique_key(pixels_start: int, pixels_end: int, msg_length: int):
     start_index = ((pixels_start + start_upper_bound) // 2)
     start_index_str = f"{start_index:08d}"
 
-    # Digits 9-16: Sum of squares of primes summing to msg_length, multiplied by 3
+    # Digits 9-16: Sum of squares of primes summing to msg_length
     prime_component, primes_list = calculate_prime_sum_component(msg_length)
+    print(f"{prime_component=} for {msg_length=}")
     prime_component_str = f"{prime_component:08d}"
 
     # Digits 17-24: Midpoint of range [end_lower_bound, pixels_end]
@@ -51,12 +54,8 @@ def generate_unique_key(pixels_start: int, pixels_end: int, msg_length: int):
 
     # Combine all parts into a 24-digit number
     key_str = f"{start_index_str}{prime_component_str}{end_index_str}"
-    key_int = int(key_str)
-
-    # Convert the 24-digit number to a hexadecimal string
-    key_hex = f"{key_int:024x}"
     # Delete leading zeroes
-    key_hex = key_hex.lstrip('0')
+    key_hex = key_str.lstrip('0')
 
     # print(f"Generated key: {key_hex}")
     return key_hex, primes_list
@@ -68,33 +67,23 @@ def parse_key(key_hex):
 
     # Extract each part of the key
     start_index_str = key_hex[:8]
+    print(f"{start_index_str}")
     prime_component_str = key_hex[8:16]
+    print(f"{prime_component_str}")
     end_index_str = key_hex[16:]
+    print(f"{end_index_str}")
 
     # Convert each part back to its original form
     start_index = int(start_index_str, 16)
     prime_component = int(prime_component_str, 16)
     end_index = int(end_index_str, 16)
 
-    # Reverse engineer the primes sum function to calculate msg_length
-    def reverse_primes_sum(prime_sum):
-        try_n_primes = 1000
-        prime_list = []
-        for i in range(try_n_primes):
-            prime_list.append(sympy.prime(1 + i))
-        # Step 1: Which prime has the largest square that is still smaller or equal to prime_sum
-        largest_square_prime = 0
-        for k in range(try_n_primes - 1, -1, -1):
-            if prime_list[k]**2 <= prime_sum:
-                largest_square_prime = prime_list[k]
-                if largest_square_prime ** 2 == prime_sum:
-                    return largest_square_prime
-                break
-        # Step 2: Try all combinations of squared primes that are before index (try_n_primes - k) in prime_list
-        # This step has time complexity n! Worst case up to n = 999 => 999! = 4.023872601*10^2564 which is nice lol.
-        # In reality probably n < 10
-
-    msg_length = reverse_primes_sum(prime_component // 3)
+    prime_sum_possibilities = reverse_primes_sum(prime_component)
+    if len(prime_sum_possibilities) == 1:
+        msg_length = prime_sum_possibilities[0]
+    else:
+        print("ERROR")
+        msg_length = prime_sum_possibilities
 
     # Calculate pixels_start, pixels_end
     pixels_range = end_index * 2 - start_index
@@ -110,4 +99,47 @@ def parse_key(key_hex):
 
     return parsed_info
 
+
+# Reverse engineer the primes sum function to calculate msg_length
+def reverse_primes_sum(prime_sum):
+    print(f"Trying to reverse {prime_sum=}")
+    try_n_primes = 100
+    prime_list = []
+    for i in range(try_n_primes):
+        prime_list.append(sympy.prime(1 + i))
+    # print(f"List of primes: {prime_list}")
+    # Step 1: Which prime has the largest square that is still smaller or equal to prime_sum
+
+    x_possibilities = []
+
+    # Test really low prime sums for ones
+    for i in range(0, 4):
+        if i == prime_sum:
+            x_possibilities.append(i)
+
+    largest_square_prime = 0
+    k = 0
+    # Get the largest prime possible
+    while prime_list[k] ** 2 <= prime_sum:
+        largest_square_prime = prime_list[k]
+        for i in range(4):
+            if largest_square_prime ** 2 + i == prime_sum:
+                x_possibilities.append(largest_square_prime + i)
+        k += 1
+    print(f"Largest square prime found: {largest_square_prime} for y = {prime_sum}")
+    current_prime_sum = largest_square_prime ** 2
+
+    tested_primes = [largest_square_prime]
+    b = k - 1
+    while b >= 0:
+        if prime_list[b] ** 2 + current_prime_sum <= prime_sum:
+            current_prime_sum += prime_list[b] ** 2
+            tested_primes.append(prime_list[b])
+            for i in range(4):
+                if current_prime_sum + i == prime_sum:
+                    x_possibilities.append(sum(p for p in tested_primes) + i)
+        else:
+            b -= 1
+
+    return x_possibilities
 

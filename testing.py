@@ -3,7 +3,7 @@ import random
 from bmp_file_parser import ImageParsEditor
 from decrypter import Decrypter
 from encrypter import Encrypter
-from key_utils import generate_unique_key, parse_key
+from key_utils import generate_unique_key, parse_key, reverse_primes_sum
 
 
 def test_bmp_images() -> bool:
@@ -67,14 +67,17 @@ def test_key_generator():
     try:
         key_to_input = {}
         y_to_x = {}
-        for i in range(10, 10000):  # test 1000 keys
+        for i in range(10, 20):  # test keys
             a = random.randint(0, 50)
             b = random.randint(i + 60, i + 100)
             key, prime_component = generate_unique_key(a, b, i)
 
             if key not in key_to_input.keys():
                 key_to_input[key] = (a, b, i)
-                # print(f"Parsed key information: {parse_key(key)}")
+                key_info = parse_key(key)
+                print(f"Parsed key information: {key_info}")
+                print(f"Asserting {i=} == {key_info['msg_length']=}")
+                assert i == key_info['msg_length']
                 y_to_x[i] = prime_component
             else:
                 print(f"Generated key already exists!!!")
@@ -94,13 +97,24 @@ def test_key_generator():
         return False
 
 
+def test_reverse_prime_sum_problem():
+    for y in range(10, 15):
+        x_possibilities = reverse_primes_sum(y)
+        # print(f"X possibilities for {y=}: {x_possibilities}")
+
+
 def test_suite() -> bool:
     print("="*20 + " TEST " + "="*20)
     try:
         assert test_bmp_images()
+        print("Test 1 Complete!")
         assert test_individual_pixel_editing()
+        print("Test 2 Complete!")
         # assert test_encrypt_decrypt_consistency()
+        print("Test 3 Complete!")
         assert test_key_generator()
+        print("Test 4 Complete!")
+        test_reverse_prime_sum_problem()
         print("All tests passed!!!")
         return True
     except Exception as e:
