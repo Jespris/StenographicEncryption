@@ -3,7 +3,7 @@ import random
 from bmp_file_parser import ImageParsEditor
 from decrypter import Decrypter
 from encrypter import Encrypter
-from key_utils import generate_unique_key, parse_key, reverse_primes_sum
+from key_utils import generate_unique_key, parse_key
 
 
 def test_bmp_images() -> bool:
@@ -66,41 +66,32 @@ def test_encrypt_decrypt_consistency():
 def test_key_generator():
     try:
         key_to_input = {}
-        y_to_x = {}
         for i in range(10, 20):  # test keys
             a = random.randint(0, 50)
             b = random.randint(i + 60, i + 100)
-            key, prime_component = generate_unique_key(a, b, i)
+            key = generate_unique_key(a, b, i)
 
             if key not in key_to_input.keys():
                 key_to_input[key] = (a, b, i)
                 key_info = parse_key(key)
-                print(f"Parsed key information: {key_info}")
-                print(f"Asserting {i=} == {key_info['msg_length']=}")
+                print(f"Parsed key information: {key_info} compare to {(a, b, i)}")
+                print(f"Asserting key parameters got parsed correctly")
                 assert i == key_info['msg_length']
-                y_to_x[i] = prime_component
+                assert a == key_info['start']
+                assert b == key_info['end']
+                print("Parsed key is correct!")
             else:
                 print(f"Generated key already exists!!!")
                 print(f"Got key {key} with input ({a}, {b}, {i})")
                 print(f"Previous key had inputs {key_to_input[key]}")
                 return False
 
-        # test some y to x values
-        for y, x_list in y_to_x.items():
-            if len(x_list) <= 3:
-                print(f"y = {y} -> x = {x_list}")
         return True
 
     except Exception as e:
         print("Key generator failed!")
         print(e)
         return False
-
-
-def test_reverse_prime_sum_problem():
-    for y in range(10, 15):
-        x_possibilities = reverse_primes_sum(y)
-        # print(f"X possibilities for {y=}: {x_possibilities}")
 
 
 def test_suite() -> bool:
@@ -114,7 +105,6 @@ def test_suite() -> bool:
         print("Test 3 Complete!")
         assert test_key_generator()
         print("Test 4 Complete!")
-        test_reverse_prime_sum_problem()
         print("All tests passed!!!")
         return True
     except Exception as e:
