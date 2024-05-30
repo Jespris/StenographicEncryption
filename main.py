@@ -25,7 +25,7 @@ def main():
 
         data = input("Provide the message you want to encrypt: ")
         print("Encrypting data...")
-        encrypter = Encrypter(image_to_encrypt, data, 1)
+        encrypter = Encrypter(image_to_encrypt, data)
         print("Done! Saving encrypted image to output/encrypted_image.bmp")
         encrypter.save_encryption('output/encrypted_image.bmp')
     else:

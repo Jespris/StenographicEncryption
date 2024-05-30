@@ -1,16 +1,16 @@
 
 
 def generate_unique_key(pixels_start: int, pixels_end: int, msg_length: int):
-    # 4 Digits representing Start index
-    start_index_str = f"{hex(pixels_start)[2:].zfill(4)}"
+    # 8 Digits representing Start index
+    start_index_str = f"{hex(pixels_start)[2:].zfill(8)}"
 
     # 4 Digits representing msg length
     msg_length_str = f"{hex(msg_length)[2:].zfill(4)}"
 
-    # 4 Digits representing End index
-    end_index_str = f"{hex(pixels_end)[2:].zfill(4)}"
+    # 8 Digits representing End index
+    end_index_str = f"{hex(pixels_end)[2:].zfill(8)}"
 
-    # Combine all parts into a 12-digit number
+    # Combine all parts into a 20-digit number
     key_str = f"{start_index_str}{msg_length_str}{end_index_str}"
 
     print(f"Generated key: {key_str}")
@@ -19,11 +19,11 @@ def generate_unique_key(pixels_start: int, pixels_end: int, msg_length: int):
 
 def parse_key(key_hex):
     # Extract each part of the key
-    start_index_str = key_hex[:4]
+    start_index_str = key_hex[:8]
     # print(f"{start_index_str}")
-    msg_length = key_hex[4:8]
+    msg_length = key_hex[8:12]
     # print(f"{msg_length}")
-    end_index_str = key_hex[8:]
+    end_index_str = key_hex[12:]
     # print(f"{end_index_str}")
 
     # Convert each part back to its original form

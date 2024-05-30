@@ -20,55 +20,47 @@ def test_bmp_images() -> bool:
 
 
 def test_individual_pixel_editing() -> bool:
-    try:
-        bmp_parser = ImageParsEditor('saved_images/sample.bmp')
-        row = 142
-        col = 132
-        pixel_data = bmp_parser.read_pixel(row, col)
-        rgb = bmp_parser.pixel_as_rgb(pixel_data)
-        assert pixel_data == b'\x8cx\xb3'
-        assert rgb == (179, 120, 140)
+    bmp_parser = ImageParsEditor('saved_images/sample.bmp')
+    row = 142
+    col = 132
+    pixel_data = bmp_parser.read_pixel(row, col)
+    rgb = bmp_parser.pixel_as_rgb(pixel_data)
+    assert pixel_data == b'\x8cx\xb3'
+    assert rgb == (179, 120, 140)
 
-        bmp_parser.set_pixel(b'\x8cx\xb4', row, col)
-        bmp_parser.save_edited_image('output/encrypted_sample.bmp')
+    bmp_parser.set_pixel(b'\x8cx\xb4', row, col)
+    bmp_parser.save_edited_image('output/encrypted_sample.bmp')
 
-        new_bmp = ImageParsEditor('output/encrypted_sample.bmp')
-        new_pixel_data = new_bmp.read_pixel(row, col)
-        new_rgb = new_bmp.pixel_as_rgb(new_pixel_data)
-        assert new_pixel_data == b'\x8cx\xb4'
-        assert new_rgb == (180, 120, 140)
+    new_bmp = ImageParsEditor('output/encrypted_sample.bmp')
+    new_pixel_data = new_bmp.read_pixel(row, col)
+    new_rgb = new_bmp.pixel_as_rgb(new_pixel_data)
+    assert new_pixel_data == b'\x8cx\xb4'
+    assert new_rgb == (180, 120, 140)
 
-        return True
-    except Exception as e:
-        print(e)
-        return False
+    return True
 
 
 def test_encrypt_decrypt_consistency():
-    try:
-        test_words = ["test", "Hello", "1234", ",.!#googoogaagaa", "TESTING", "9e"]
-        for word in test_words:
-            reference_img = 'saved_images/sample.bmp'
-            encrypt_path = 'output/encrypted_image.bmp'
-            key = 1
-            encrypter = Encrypter(reference_img,
-                                  word,
-                                  key)
-            encrypter.save_encryption(encrypt_path)
-            decrypter = Decrypter(encrypt_path, key)
-            assert decrypter.decrypted_data == word
-        return True
-    except Exception as e:
-        print(e)
-        return False
+    test_words = ["test", "Hello", "1234", ",.!#googoogaagaa", "TESTING", "2a"]
+    for word in test_words:
+        reference_img = 'saved_images/sample.bmp'
+        encrypt_path = 'output/encrypted_image.bmp'
+        encrypter = Encrypter(reference_img,
+                              word)
+        encrypter.save_encryption(encrypt_path)
+        key = encrypter.key
+        print("Encryption done! Checking decrypt consistency")
+        decrypter = Decrypter(encrypt_path, reference_img, key)
+        assert decrypter.decrypted_data == word
+    return True
 
 
 def test_key_generator():
     try:
         key_to_input = {}
         for i in range(10, 20):  # test keys
-            a = random.randint(0, 50)
-            b = random.randint(i + 60, i + 100)
+            a = random.randint(123, 1234)
+            b = random.randint(a + i, a + i + 1234)
             key = generate_unique_key(a, b, i)
 
             if key not in key_to_input.keys():
@@ -94,19 +86,31 @@ def test_key_generator():
         return False
 
 
+def test_image_indexes():
+    img = 'saved_images/sample.bmp'
+    image_editor = ImageParsEditor(img)
+    end_index = image_editor.get_end_index()
+    print("Testing first index")
+    row, col = image_editor.get_row_col(image_editor.pixel_data_offset)
+    assert row == 0
+    assert col == 0
+    print("Testing end index")
+    row, col = image_editor.get_row_col(end_index)
+    assert row == image_editor.bmp_height - 1
+    assert col == image_editor.bmp_width - 1
+    return True
+
+
 def test_suite() -> bool:
     print("="*20 + " TEST " + "="*20)
-    try:
-        assert test_bmp_images()
-        print("Test 1 Complete!")
-        assert test_individual_pixel_editing()
-        print("Test 2 Complete!")
-        # assert test_encrypt_decrypt_consistency()
-        print("Test 3 Complete!")
-        assert test_key_generator()
-        print("Test 4 Complete!")
-        print("All tests passed!!!")
-        return True
-    except Exception as e:
-        print(e)
-        return False
+    assert test_bmp_images()
+    print("Test 1 Complete!")
+    assert test_individual_pixel_editing()
+    print("Test 2 Complete!")
+    assert test_encrypt_decrypt_consistency()
+    print("Test 3 Complete!")
+    assert test_key_generator()
+    print("Test 4 Complete!")
+    assert test_image_indexes()
+    print("All tests passed!!!")
+    return True

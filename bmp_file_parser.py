@@ -69,11 +69,33 @@ class ImageParsEditor:
             }
 
     def get_total_pixel_bytes(self):
-        return self.bmp_height * self.row_size + self.bmp_width * self.bytes_per_pixel - self.pixel_data_offset
+        return self.bmp_height * self.bmp_width * self.bytes_per_pixel
+
+    def get_end_index(self):
+        end = self.get_total_pixel_bytes() + self.pixel_data_offset - 1
+        print(f"End index: {end}")
+        return end
+
+    def get_midpoint(self):
+        return self.get_total_pixel_bytes() // 2 + self.pixel_data_offset
+
+    def get_row_col(self, index: int):
+        row = (index - self.pixel_data_offset) // self.row_size
+        col = ((index - self.pixel_data_offset) % self.row_size) // self.bytes_per_pixel
+        return row, col
 
     def read_pixel(self, row: int, col: int) -> bytes:
         # Calculate the position of the pixel in the file
         # BMP files store rows bottom-to-top
+        try:
+            assert 0 <= row < self.bmp_height
+            assert 0 <= col < self.bmp_width
+        except AssertionError as e:
+            print("Trying to read pixel at invalid coordinates...")
+            print(f"{row=} of max {self.bmp_height}")
+            print(f"{col=} of max {self.bmp_width}")
+            print(e)
+
         pixel_offset = self.pixel_data_offset + (self.bmp_height - 1 - row) * self.row_size + col * self.bytes_per_pixel
         try:
             with open(self.img_path, 'rb') as f:
@@ -121,5 +143,9 @@ class ImageParsEditor:
             f.seek(0)
             f.write(self.edited_bytearray)
             # f.truncate()  # Adjust the file size if needed
+
+    def read_pixel_at(self, index):
+        row, col = self.get_row_col(index)
+        return self.read_pixel(row, col)
 
 
