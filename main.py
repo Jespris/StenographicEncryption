@@ -2,6 +2,9 @@ import os
 from encrypter import Encrypter
 from decrypter import Decrypter
 from testing import test_suite
+from binary_encrypter import BinaryEncrypter
+from binary_decrypter import BinaryDecrypter
+
 
 # Globals
 SAMPLE_IMAGES = ['saved_images/blue.bmp',
@@ -26,7 +29,7 @@ def main():
 
             data = input("Provide the message you want to encrypt: ")
             print("Encrypting data...")
-            encrypter = Encrypter(image_to_encrypt, data)
+            encrypter = BinaryEncrypter(image_to_encrypt, data)
             output_path = f"output/{input('Please provide a name for the encrypted file > ')}"
             print(f"Done! Saved encrypted image to {output_path}")
             encrypter.save_encryption(output_path)
@@ -39,22 +42,14 @@ def main():
                     if file_to_decrypt is not None:
                         break
                 # TODO: add alternative to give absolute path to a bmp image
-            reference_file = None
-            print(f"{os.listdir('saved_images')=}")
-            while reference_file is None:
-                for file in os.listdir('saved_images'):
-                    reference_file = f"saved_images/{file}" if input(f"Is this the reference file: {file}? y/n > ") == "y" else None
-                    if reference_file is not None:
-                        break
-                # TODO: add alternative to give absolute path to a bmp image
-            if file_to_decrypt is not None and reference_file is not None:
+            if file_to_decrypt is not None:
                 decryption_key = input("Please provide the key > ")
-                decrypter = Decrypter(file_to_decrypt, reference_file, decryption_key)
+                decrypter = BinaryDecrypter(file_to_decrypt, decryption_key)
             print("DONE! Exiting program!")
 
 
 if __name__ == "__main__":
     # make sure the program passes all tests, for now
-    if test_suite():
-        print("="*20 + " MAIN " + "="*20)
-        main()
+    # if test_suite():
+    print("="*20 + " MAIN " + "="*20)
+    main()

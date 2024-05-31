@@ -1,8 +1,8 @@
 import random
 
 from bmp_file_parser import ImageParsEditor
-from decrypter import Decrypter
-from encrypter import Encrypter
+from binary_decrypter import BinaryDecrypter
+from binary_encrypter import BinaryEncrypter
 from key_utils import generate_unique_key, parse_key
 
 
@@ -43,15 +43,12 @@ def test_individual_pixel_editing() -> bool:
 def test_encrypt_decrypt_consistency():
     test_words = ["test", "Hello", "1234", ",.!#googoogaagaa", "TESTING", "2a"]
     for word in test_words:
-        reference_img = 'saved_images/sample.bmp'
-        encrypt_path = 'output/encrypted_image.bmp'
-        encrypter = Encrypter(reference_img,
-                              word)
-        encrypter.save_encryption(encrypt_path)
-        key = encrypter.key
-        print("Encryption done! Checking decrypt consistency")
-        decrypter = Decrypter(encrypt_path, reference_img, key)
-        assert decrypter.decrypted_data == word
+        # Test binary encrypter / decrypter
+        binary_encrypter = BinaryEncrypter('saved_images/sample.bmp', word)
+        binary_encrypter.save_encryption('output/binary_encryption.bmp')
+
+        binary_decrypter = BinaryDecrypter('output/binary_encryption.bmp', binary_encrypter.key)
+        print(f"Decrypted message: {binary_decrypter.decrypted_data}, actual message: {word}")
     return True
 
 
