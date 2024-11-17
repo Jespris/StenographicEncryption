@@ -1,5 +1,6 @@
 import random
 
+from binary_utils import binary_to_hex, convert_to_binary
 from bmp_file_parser import ImageParsEditor
 from key_utils import generate_binary_key
 
@@ -9,7 +10,7 @@ class BinaryEncrypter:
         self.data_to_encrypt: str = data
         self.image_path = image_path
         self.image_editor = ImageParsEditor(image_path)
-        self.data_as_binary = self.convert_to_binary()  # characters in data string are represented as 8 bits
+        self.data_as_binary = convert_to_binary(self.data_to_encrypt)  # characters in data string are represented as 8 bits
         # print(self.data_as_bytes)
         print(f"Encrypting data: '{data}' into image")
         self.data_start = self.set_data_start()
@@ -20,9 +21,6 @@ class BinaryEncrypter:
 
     def save_encryption(self, output_file_path):
         self.image_editor.save_edited_image(output_file_path)
-
-    def convert_to_binary(self):
-        return ''.join(format(ord(char), '08b') for char in self.data_to_encrypt)
 
     def set_data_start(self):
         # set a random startpoint where the encryption still fits
@@ -66,19 +64,10 @@ class BinaryEncrypter:
             binary_strings.append(binary_str)
         # print(f"This is {binary_strings} in binary")
         # Convert back to bytes
-        new_bytes = self.binary_to_hex(binary_strings)
+        new_bytes = binary_to_hex(binary_strings)
         # print(f"The new, edited bytes: {new_bytes}")
         # print(f"{new_bytes=}")
         return new_bytes
 
-    @staticmethod
-    def binary_to_hex(binary_strings):
-        new_bytes = bytearray()
-        for binary_str in binary_strings:
-            # Convert the binary string back to a byte
-            new_byte = int(binary_str, 2)
-            new_bytes.append(new_byte)
-
-        return bytes(new_bytes)
 
 

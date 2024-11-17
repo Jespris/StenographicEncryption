@@ -1,9 +1,6 @@
 import os
-from encrypter import Encrypter
-from decrypter import Decrypter
-from testing import test_suite
-from binary_encrypter import BinaryEncrypter
-from binary_decrypter import BinaryDecrypter
+from lcb_decrypter import LCBDecrypter
+from lcb_encrypter import LCBEncrypter
 
 
 # Globals
@@ -28,8 +25,8 @@ def main():
                     valid_path = True
 
             data = input("Provide the message you want to encrypt: ")
-            print("Encrypting data...")
-            encrypter = BinaryEncrypter(image_to_encrypt, data)
+            # print("Encrypting data...")
+            encrypter = LCBEncrypter(image_to_encrypt, data)
             output_path = f"output/{input('Please provide a name for the encrypted file > ')}"
             print(f"Done! Saved encrypted image to {output_path}")
             encrypter.save_encryption(output_path)
@@ -44,8 +41,9 @@ def main():
                 # TODO: add alternative to give absolute path to a bmp image
             if file_to_decrypt is not None:
                 decryption_key = input("Please provide the key > ")
-                decrypter = BinaryDecrypter(file_to_decrypt, decryption_key)
+                decrypter = LCBDecrypter(file_to_decrypt, decryption_key)
             print("DONE! Exiting program!")
+            break
 
 
 if __name__ == "__main__":

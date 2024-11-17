@@ -1,4 +1,3 @@
-import os
 import shutil
 import struct
 
@@ -16,7 +15,6 @@ class ImageParsEditor:
         self.is_uncompressed: bool = self.bmp_info["is_uncompressed"]
         self.row_size = (self.bmp_width * self.bytes_per_pixel + 3) & ~3
         # Row size (including padding to the nearest 4 bytes)
-
         self.edited_bytearray = self.copy_bytes()
 
     def read_bmp_header(self):
@@ -73,7 +71,7 @@ class ImageParsEditor:
 
     def get_end_index(self):
         end = self.get_total_pixel_bytes() + self.pixel_data_offset - 1
-        print(f"End index: {end}")
+        # print(f"End index: {end}")
         return end
 
     def get_midpoint(self):
