@@ -1,6 +1,6 @@
 import random
 
-from bmp_file_parser import ImageParsEditor
+from bmp_file_parser import ImageParser
 from binary_decrypter import BinaryDecrypter
 from binary_encrypter import BinaryEncrypter
 from key_utils import generate_unique_key, parse_key
@@ -10,7 +10,7 @@ def test_bmp_images() -> bool:
     test_images = ['blue', 'sample', 'sample2', 'sample3']
     try:
         for test_image in test_images:
-            bmp_parser = ImageParsEditor(f"saved_images/{test_image}.bmp")
+            bmp_parser = ImageParser(f"saved_images/{test_image}.bmp")
             assert bmp_parser.is_uncompressed is True
         return True
     except Exception as e:
@@ -20,7 +20,7 @@ def test_bmp_images() -> bool:
 
 
 def test_individual_pixel_editing() -> bool:
-    bmp_parser = ImageParsEditor('saved_images/sample.bmp')
+    bmp_parser = ImageParser('saved_images/sample.bmp')
     row = 142
     col = 132
     pixel_data = bmp_parser.read_pixel(row, col)
@@ -31,7 +31,7 @@ def test_individual_pixel_editing() -> bool:
     bmp_parser.set_pixel(b'\x8cx\xb4', row, col)
     bmp_parser.save_edited_image('output/encrypted_sample.bmp')
 
-    new_bmp = ImageParsEditor('output/encrypted_sample.bmp')
+    new_bmp = ImageParser('output/encrypted_sample.bmp')
     new_pixel_data = new_bmp.read_pixel(row, col)
     new_rgb = new_bmp.pixel_as_rgb(new_pixel_data)
     assert new_pixel_data == b'\x8cx\xb4'
@@ -85,7 +85,7 @@ def test_key_generator():
 
 def test_image_indexes():
     img = 'saved_images/sample.bmp'
-    image_editor = ImageParsEditor(img)
+    image_editor = ImageParser(img)
     end_index = image_editor.get_end_index()
     print("Testing first index")
     row, col = image_editor.get_row_col(image_editor.pixel_data_offset)

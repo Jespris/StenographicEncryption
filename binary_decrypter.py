@@ -1,4 +1,4 @@
-from bmp_file_parser import ImageParsEditor
+from bmp_file_parser import ImageParser
 from key_utils import parse_binary_key
 
 
@@ -7,7 +7,7 @@ class BinaryDecrypter:
         self.encrypted_img_path = encrypted_image
         self.key = key
         self.decrypted_data = ""
-        self.img_parser = ImageParsEditor(self.encrypted_img_path)
+        self.img_parser = ImageParser(self.encrypted_img_path)
         self.key_info = parse_binary_key(self.key)
         print("Decrypting data...")
         self.decrypt()

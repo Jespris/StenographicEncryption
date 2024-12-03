@@ -1,6 +1,6 @@
 import math
 
-from bmp_file_parser import ImageParsEditor
+from bmp_file_parser import ImageParser
 from key_utils import parse_key
 
 
@@ -10,8 +10,8 @@ class Decrypter:
         self.encrypted_img_path = encrypted_image_path
         self.key = key
         self.decrypted_data = ""
-        self.encrypted_img_parser = ImageParsEditor(self.encrypted_img_path)
-        self.reference_img_parser = ImageParsEditor(self.reference_img_path)
+        self.encrypted_img_parser = ImageParser(self.encrypted_img_path)
+        self.reference_img_parser = ImageParser(self.reference_img_path)
         self.key_info = parse_key(self.key)
         print("Decrypting data...")
         self.decrypt()

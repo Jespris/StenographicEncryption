@@ -1,7 +1,7 @@
 import random
 
 from binary_utils import binary_to_hex, convert_to_binary
-from bmp_file_parser import ImageParsEditor
+from bmp_file_parser import ImageParser
 from key_utils import generate_binary_key
 
 
@@ -9,7 +9,7 @@ class BinaryEncrypter:
     def __init__(self, image_path, data):
         self.data_to_encrypt: str = data
         self.image_path = image_path
-        self.image_editor = ImageParsEditor(image_path)
+        self.image_editor = ImageParser(image_path)
         self.data_as_binary = convert_to_binary(self.data_to_encrypt)  # characters in data string are represented as 8 bits
         # print(self.data_as_bytes)
         print(f"Encrypting data: '{data}' into image")

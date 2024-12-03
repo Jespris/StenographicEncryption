@@ -1,4 +1,4 @@
-from bmp_file_parser import ImageParsEditor
+from bmp_file_parser import ImageParser
 
 
 class LCBDecrypter:
@@ -6,8 +6,8 @@ class LCBDecrypter:
         self.encrypted_img_path = encrypted_image
         self.key = key
         self.decrypted_data = ""
-        self.img_parser = ImageParsEditor(self.encrypted_img_path)
-        self.binary_length, self.key_ints = self.parse_key()
+        self.img_parser = ImageParser(self.encrypted_img_path)
+        self.binary_length, self.encrypted_bits, self.key_ints = self.parse_key()
         # print(f"Got key integers: {self.key_ints}")
         # print("Decrypting data...")
         self.decrypt()
@@ -21,7 +21,7 @@ class LCBDecrypter:
             for byte in list(pixel_bytes):
                 binary_str = format(byte, '08b')
                 # print(f"Binary string of byte: {binary_str}, encoded bit: {binary_str[-1]}")
-                binary_data.append(binary_str[-1])
+                binary_data.append(binary_str[-self.encrypted_bits:])
         # join all the data into a very long string in binary
         encrypted_in_binary = ''.join(binary_data)
         encrypted_in_binary = encrypted_in_binary[:self.binary_length]
@@ -32,8 +32,9 @@ class LCBDecrypter:
 
     def parse_key(self):
         # Split the key into the binary length and the remaining key
-        binary_length, remaining_key = self.key.split("|", 1)
+        binary_length, encrypted_bits, remaining_key = self.key.split("|", 2)
         binary_length = int(binary_length)  # Convert the binary length to an integer
+        encrypted_bits = int(encrypted_bits)  # also convert this to an integer
         # print(f"Parsed binary message length: {binary_length}")
 
         # Split the remaining key into chunks of size 8 and convert to integers
@@ -43,5 +44,5 @@ class LCBDecrypter:
             for i in range(0, len(remaining_key), chunk_size)
         ]
         # print(f"Decoded key integers: {decoded_integers}")
-        return binary_length, decoded_integers
+        return binary_length, encrypted_bits, decoded_integers
 

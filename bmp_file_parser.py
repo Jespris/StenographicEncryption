@@ -2,20 +2,21 @@ import shutil
 import struct
 
 
-class ImageParsEditor:
+class ImageParser:
     def __init__(self, image_path):
         self.img_path = image_path
         self.bmp_info = self.read_bmp_header()
-        # print(f"{self.bmp_info=}")
-        self.pixel_data_offset: int = self.bmp_info["pixel_data_offset"]
+        print(f"{self.bmp_info=}")
+        self.pixel_data_offset: int = self.bmp_info["pixel_data_offset"] #
         self.bmp_width: int = self.bmp_info["width"]
         self.bmp_height: int = self.bmp_info["height"]
         self.bits_per_pixel: int = self.bmp_info["bits_per_pixel"]
         self.bytes_per_pixel: int = self.bits_per_pixel // 8
         self.is_uncompressed: bool = self.bmp_info["is_uncompressed"]
-        self.total_bytes = self.bmp_info["total_bytes"]
+        self.dib_header_size: int = self.bmp_info["dib_header_size"]
+        self.total_bytes: int = self.bmp_info["total_bytes"]
 
-        self.row_size = (self.bmp_width * self.bytes_per_pixel + 3) & ~3
+        self.row_size: int = (self.bmp_width * self.bytes_per_pixel + 3) & ~3
         # Row size (including padding to the nearest 4 bytes)
 
         self.edited_bytearray = self.copy_bytes()
@@ -73,6 +74,7 @@ class ImageParsEditor:
                 "height": height,
                 "bits_per_pixel": bits_per_pixel,
                 "is_uncompressed": is_uncompressed,
+                "dib_header_size": dib_header_size // 2,  # the header is twice as big as it actually is for some reason
                 "total_bytes": file_size
             }
 
@@ -80,8 +82,9 @@ class ImageParsEditor:
         return self.bmp_height * self.bmp_width * self.bytes_per_pixel
 
     def get_end_index(self):
-        end = self.get_total_pixel_bytes() + self.pixel_data_offset - 1
-        assert end == self.total_bytes - 1
+        end = self.dib_header_size + self.get_total_pixel_bytes() + self.pixel_data_offset - 1
+        if end != self.total_bytes - 1:
+            print(f"Calculated end index is wrong?!? {end=} != {self.total_bytes=}-1")
         # print(f"End index: {end}")
         return end
 

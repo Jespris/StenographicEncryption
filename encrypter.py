@@ -1,7 +1,7 @@
 import math
 import random
 
-from bmp_file_parser import ImageParsEditor
+from bmp_file_parser import ImageParser
 from key_utils import generate_unique_key
 
 
@@ -9,7 +9,7 @@ class Encrypter:
     def __init__(self, image_path: str, data: str):
         self.data_to_encrypt: str = data
         self.image_path = image_path
-        self.image_editor = ImageParsEditor(image_path)
+        self.image_editor = ImageParser(image_path)
         self.data_as_chars: [chr] = list(self.data_to_encrypt)
         self.data_as_bytes = self.convert_to_hex(data)
         # print(self.data_as_bytes)

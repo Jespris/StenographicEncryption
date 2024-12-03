@@ -7,26 +7,44 @@ from lcb_encrypter import LCBEncrypter
 SAMPLE_IMAGES = ['saved_images/blue.bmp',
                  'saved_images/sample.bmp',
                  'saved_images/sample2.bmp',
-                 'saved_images/sample3.bmp']
+                 'saved_images/sample3.bmp',
+                 'saved_images/10x10.bmp',
+                 'saved_images/10x10corner.bmp',]
 
 
 def main():
+    test_bmp = 'saved_images/10x10.bmp'
+    test_message = 'Hello, world!'
     print("Hello")
     while True:
-        encrypting = True if input("Do you want to encrypt? y/n > ") == "y" else False
+        encrypting = True if input("Do you want to LCB encrypt? y/n > ") == "y" else False
         if encrypting:
+            if test_bmp and test_message:
+                print("Encrypting with test parameters...")
             valid_path = False
-            image_to_encrypt = ""
+            image_to_encrypt = test_bmp
             while not valid_path:
-                print(f"Please provide a valid path to the image you want to encrypt, "
-                      f"or you can choose from this list of sample images: {SAMPLE_IMAGES}")
-                image_to_encrypt = input("Path: ")
                 if image_to_encrypt in SAMPLE_IMAGES:  # TODO: or using os check if file exists and is bmp
                     valid_path = True
+                else:
+                    print(f"Please provide a valid path to the image you want to encrypt, "
+                          f"or you can choose from this list of sample images: {SAMPLE_IMAGES}")
+                    image_to_encrypt = input("Path: ")
 
-            data = input("Provide the message you want to encrypt: ")
+            if not test_message:
+                data = input("Provide the message you want to encrypt: ")
+            else:
+                data = test_message
             # print("Encrypting data...")
-            encrypter = LCBEncrypter(image_to_encrypt, data)
+            encrypt_bits = 1
+            try:
+                encrypt_bits = int(input("How many bits per byte do you want to encrypt? (Suggested amount: 1 or 2. Max Amount = 8) \n> "))
+                if encrypt_bits > 8:
+                    print("Invalid input. Setting encryption bits per byte to 1")
+            except Exception as e:
+                print("Invalid input. Setting encryption bits per byte to 1")
+                encrypt_bits = 1
+            encrypter = LCBEncrypter(image_to_encrypt, data, encrypt_bits)
             output_path = f"output/{input('Please provide a name for the encrypted file > ')}"
             print(f"Done! Saved encrypted image to {output_path}")
             encrypter.save_encryption(output_path)
