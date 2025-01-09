@@ -34,7 +34,8 @@ class LCBEncrypter:
                 self.image_parser.pixel_data_offset,
                 self.image_parser.get_end_index()
             )
-            if key_int not in key_indexes: # There can't be duplicate indexes
+            if key_int not in key_indexes and self.image_parser.is_valid_pixel_index(key_int): # Assure in bounds
+                # There can't be duplicate indexes
                 key_indexes.append(key_int)
 
         # Step 2.
@@ -78,9 +79,21 @@ class LCBEncrypter:
             binary_str = format(byte, '08b')
             print(f"Byte in binary: {binary_str}")
             i = index * self.encrypt_bits
-            if index < len(new_bits):
+            if (index + 1) * self.encrypt_bits <= len(new_bits):
                 # Replace the last bit with the corresponding bit from 'bits'
                 binary_str = binary_str[:-self.encrypt_bits] + new_bits[i:i + self.encrypt_bits]
+            else:
+                # we have run out of bits to encrypt, leave the byte as is
+                # or we have less than a full encrypt_bits length worth of bits to encrypt
+                print("Encrypting the last remnants of bits into this byte")
+                bits_left = len(new_bits) % self.encrypt_bits
+
+                if bits_left > 0:
+                    # binary_str = binary_str[:-(bits_left + 1)] + new_bits[i:] + binary_str[-1]
+                    binary_str = binary_str[:-self.encrypt_bits] + new_bits[i:] + binary_str[-(self.encrypt_bits-bits_left):]
+                else:
+                    print("No bits left to encrypt, leaving this byte as is")
+
             binary_strings.append(binary_str)
             print(f"The new binary string: {binary_str}")
         # Convert back to bytes

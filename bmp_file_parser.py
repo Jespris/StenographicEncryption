@@ -163,4 +163,12 @@ class ImageParser:
         row, col = self.get_row_col(index)
         return self.read_pixel(row, col)
 
+    def is_valid_pixel_index(self, index):
+        row, col = self.get_row_col(index)
+        if 0 <= row < self.bmp_height and 0 <= col < self.bmp_width:
+            return True
+        else:
+            print(f"Pixel index {index} = ({row}, {col}) is not a pixel in bounds")
+            return False
+
 

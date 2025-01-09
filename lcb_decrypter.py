@@ -24,6 +24,7 @@ class LCBDecrypter:
                 binary_data.append(binary_str[-self.encrypted_bits:])
         # join all the data into a very long string in binary
         encrypted_in_binary = ''.join(binary_data)
+        # truncate the length to match the expected length
         encrypted_in_binary = encrypted_in_binary[:self.binary_length]
         # split the binary string into chunks of 8
         binary_in_chunks = [encrypted_in_binary[i:i+8] for i in range(0, len(encrypted_in_binary), 8)]
