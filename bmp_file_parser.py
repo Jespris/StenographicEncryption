@@ -29,8 +29,8 @@ class ImageParser:
             # Parse the BMP file header
             file_type = bmp_file_header[0:2].decode('ascii')  # First 2 bytes
             file_size = int.from_bytes(bmp_file_header[2:6], byteorder='little')  # Next 4 bytes
-            reserved1 = int.from_bytes(bmp_file_header[6:8], byteorder='little')  # Next 2 bytes
-            reserved2 = int.from_bytes(bmp_file_header[8:10], byteorder='little')  # Next 2 bytes
+            reserved1 = int.from_bytes(bmp_file_header[6:8], byteorder='little')  # Next 2 bytes, not used
+            reserved2 = int.from_bytes(bmp_file_header[8:10], byteorder='little')  # Next 2 bytes, not used
             pixel_data_offset = int.from_bytes(bmp_file_header[10:14], byteorder='little')  # Next 4 bytes
 
             if file_type != 'BM':
@@ -48,11 +48,13 @@ class ImageParser:
                 # BITMAPINFOHEADER format
                 width = int.from_bytes(dib_header[4:8], byteorder='little')
                 height = int.from_bytes(dib_header[8:12], byteorder='little')
-                color_planes = int.from_bytes(dib_header[12:14], byteorder='little')
+                color_planes = int.from_bytes(dib_header[12:14], byteorder='little') # not used
                 bits_per_pixel = int.from_bytes(dib_header[14:16], byteorder='little')
                 compression_method = int.from_bytes(dib_header[16:20], byteorder='little')
+
+                # Additional fields for BITMAPV5HEADER below, which are not used in this program
                 if dib_header_size == 124:
-                    # Additional fields for BITMAPV5HEADER
+
                     red_mask = int.from_bytes(dib_header[40:44], byteorder='little')
                     green_mask = int.from_bytes(dib_header[44:48], byteorder='little')
                     blue_mask = int.from_bytes(dib_header[48:52], byteorder='little')
@@ -74,7 +76,7 @@ class ImageParser:
                 "height": height,
                 "bits_per_pixel": bits_per_pixel,
                 "is_uncompressed": is_uncompressed,
-                "dib_header_size": dib_header_size // 2,  # the header is twice as big as it actually is for some reason
+                "dib_header_size": dib_header_size // 2,  # the header size is in pairs of 4 bits, not bytes
                 "total_bytes": file_size
             }
 

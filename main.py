@@ -1,6 +1,6 @@
 import os
-from lcb_decrypter import LCBDecrypter
-from lcb_encrypter import LCBEncrypter
+from lsb_decrypter import LSBDecrypter
+from lsb_encrypter import LSBEncrypter
 
 
 # Globals
@@ -17,7 +17,7 @@ def main():
     test_message = 'Hello, world!'
     print("Hello")
     while True:
-        encrypting = True if input("Do you want to LCB encrypt? y/n > ") == "y" else False
+        encrypting = True if input("Do you want to LSB encrypt? y/n > ") == "y" else False
         if encrypting:
             if test_bmp and test_message:
                 print("Encrypting with test parameters...")
@@ -44,7 +44,7 @@ def main():
             except Exception as e:
                 print("Invalid input. Setting encryption bits per byte to 1")
                 encrypt_bits = 1
-            encrypter = LCBEncrypter(image_to_encrypt, data, encrypt_bits)
+            encrypter = LSBEncrypter(image_to_encrypt, data, encrypt_bits)
             output_path = f"output/{input('Please provide a name for the encrypted file > ')}"
             print(f"Done! Saved encrypted image to {output_path}")
             encrypter.save_encryption(output_path)
@@ -59,7 +59,7 @@ def main():
                 # TODO: add alternative to give absolute path to a bmp image
             if file_to_decrypt is not None:
                 decryption_key = input("Please provide the key > ")
-                decrypter = LCBDecrypter(file_to_decrypt, decryption_key)
+                decrypter = LSBDecrypter(file_to_decrypt, decryption_key)
             print("DONE! Exiting program!")
             break
 

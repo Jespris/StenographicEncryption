@@ -5,7 +5,7 @@ from binary_utils import convert_to_binary, binary_to_hex
 from bmp_file_parser import ImageParser
 
 
-class LCBEncrypter:
+class LSBEncrypter:
     def __init__(self, image_path, data, encrypt_bits=1):
         self.data_to_encrypt: str = data
         self.image_path = image_path
@@ -22,7 +22,7 @@ class LCBEncrypter:
         print(self.key)
 
     def obfuscate_data(self):
-        # encrypt data as binary in LCB in random pixels, returns the encryption key
+        # encrypt data as binary in LSB in random pixels, returns the encryption key
         # Step 1.
         #   Figure out how many pixels we need to encrypt,
         #   and get that amount of random pixel indexes
